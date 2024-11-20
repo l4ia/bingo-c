@@ -1,17 +1,35 @@
-# Ignorar archivos binarios y de compilación
+# Archivos de compilación
 *.o
 *.out
 *.exe
+*.bin
+*.elf
 
-# Archivos generados por el sistema
+# Archivos de depuración y logs
+*.log
+*.tmp
+*.bak
+*.swp
+*.pid
+*.stackdump
+
+# Directorios de compilación
+/build/
+/dist/
+
+# Archivos generados por editores
+.vscode/
+.idea/
+*.code-workspace
+
+# Archivos del sistema operativo
 .DS_Store
 Thumbs.db
 
-# Archivos de logs y temporales
-*.log
-*.tmp
+# Archivos temporales de Git
+*.orig
+*.lock
 
-# Configuraciones de editores
-.vscode/
-.idea/
-*.swp
+# Otros archivos no deseados
+*.gch
+*.d
