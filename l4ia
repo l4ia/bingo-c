@@ -1,0 +1,152 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <Windows.h>
+#include <time.h>
+
+#define SIZE 100
+
+//Funcion para inicializar carton a -1
+void inicializar_carton(int array[]) {
+    for (int i = 0; i < SIZE; i++) {
+        array[i] = -1;
+    }
+}
+
+//Funcion para generar numeros aleatorios sin repeticion
+int generar_num_aleatorio(int generados[], int* count) {
+    int numAleatorio;
+    bool esRepetido;
+
+    do {
+        esRepetido = false;
+        numAleatorio = rand() % 100 + 1;
+
+        //verifica si ha sido generado
+        for (int i = 0; i < *count; i++) {
+            if (generados[i] == numAleatorio) {
+                esRepetido = true;
+                break;
+            }
+        }
+    } while (esRepetido);
+
+    generados[*count] = numAleatorio;
+    (*count)++;
+
+    return numAleatorio;
+}
+
+//funcion para generar cartón con números aleatorios
+void generar_carton(int array[]) {
+    int generados[SIZE];
+    int count = 0;
+
+    for (int fila = 0; fila < 10; fila++) {
+        int numAleatorio1 = generar_num_aleatorio(generados, &count);
+        int numAleatorio2;
+
+        do {
+            numAleatorio2 = generar_num_aleatorio(generados, &count);
+        } while (numAleatorio2 == numAleatorio1);
+
+        int pos1 = fila * 10 + (rand() % 10);
+        int pos2;
+
+        do {
+            pos2 = fila * 10 + (rand() % 10);
+        } while (pos2 == pos1);
+
+        array[numAleatorio1] = numAleatorio1;
+        array[numAleatorio2] = numAleatorio2;
+    }
+}
+
+//Funcion para printar el carton
+void imprimirCarton(int array[], bool actualizar[], bool esTercerCarton) {
+    for (int i = 0; i < SIZE; i++) {
+        if (array[i] == -1) {
+            printf(" -- "); //espacios para no inicializar en -1
+        }
+        else if (!esTercerCarton && actualizar != NULL && actualizar[i]) {
+            printf(" %c ", 219); //número "tachado" con 221 simbolo en ASCII
+        }
+        else {
+            printf("%3d ", array[i]); //numero visible generado
+        }
+        if ((i + 1) % 10 == 0) {
+            printf("\n");
+        }
+    }
+    printf("\n");
+}
+
+//Función para actualizar los cartones 
+void actualizar_dos_cartones(int miCarton[], int tuCarton[], int tercerCarton[]) {
+    bool actualizarMiCarton[SIZE] = { false };
+    bool actualizarTuCarton[SIZE] = { false };
+    int generados[SIZE];
+    int countGenerados = 0;
+    int aciertosMiCarton = 0;
+    int aciertosTuCarton = 0;
+
+    while (aciertosMiCarton < 20 && aciertosTuCarton < 20) {
+        int numeroGenerado = generar_num_aleatorio(generados, &countGenerados);
+
+        for (int i = 0; i < SIZE; i++) {
+            if (miCarton[i] == numeroGenerado) {
+                actualizarMiCarton[i] = true;
+                aciertosMiCarton++;
+            }
+            if (tuCarton[i] == numeroGenerado) {
+                actualizarTuCarton[i] = true;
+                aciertosTuCarton++;
+            }
+        }
+
+        //el tercer carton se actualiza a parte
+        tercerCarton[numeroGenerado - 1] = numeroGenerado;
+
+        system("cls");
+
+        printf("Mi Carton:\n");
+        imprimirCarton(miCarton, actualizarMiCarton, false);
+
+        printf("\nTu Carton:\n");
+        imprimirCarton(tuCarton, actualizarTuCarton, false);
+
+        printf("\nNumeros que han salido:\n");
+        imprimirCarton(tercerCarton, NULL, true); //NO TIENE LÓGICA de actualización
+
+        if (aciertosMiCarton == 20) {
+            printf("\n¡Has ganado tú!\n");
+            break;
+        }
+        if (aciertosTuCarton == 20) {
+            printf("\n¡Ha ganado el segundo cartón! :(\n");
+            break;
+        }
+
+        Sleep(500);
+    }
+}
+
+int main() {
+    srand(time(NULL));
+
+    int miCarton[SIZE];
+    int tuCarton[SIZE];
+    int tercerCarton[SIZE];
+    //llamamos a todas las funciones
+    inicializar_carton(miCarton);
+    inicializar_carton(tuCarton);
+    inicializar_carton(tercerCarton);
+
+    generar_carton(miCarton);
+    generar_carton(tuCarton);
+
+    actualizar_dos_cartones(miCarton, tuCarton, tercerCarton);
+
+    return 0;
+}
